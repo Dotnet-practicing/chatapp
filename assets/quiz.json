@@ -1,0 +1,100 @@
+[
+  {
+    "question": "What is true about 5G?",
+    "options": [
+      "High increased peak bit rate",
+      "Lower battery consumption",
+      "Larger data volume per unit area",
+      "All of the above"
+    ],
+    "answer": 3
+  },
+  {
+    "question": "Which of these is not a programming language?",
+    "options": [
+      "Java",
+      "Kotlin",
+      "Compiler",
+      "Dart"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "Who founded Apple Ink?",
+    "options": [
+      "Steve Jobs",
+      "Sheryl Sandberg",
+      "Bill Gates",
+      "Sundar Pichai"
+    ],
+    "answer": 0
+  },
+  {
+    "question": "Which of these is not a peripheral, in computer terms?",
+    "options": [
+      "Keyboard",
+      "Mouse",
+      "Motherboard",
+      "Monitor"
+    ],
+    "answer": 2
+  },
+  {
+    "question": "Dart is originally developed by?",
+    "options": [
+      "Amazon",
+      "Google",
+      "Apple",
+      "Alibaba"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "A network designed to allow communication within an organization is called:",
+    "options": [
+      "the Internet",
+      "the Intranet",
+      "a browser",
+      "the World Wide Web"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "Dart is an Object-Oriented language",
+    "options": [
+      "Yes",
+      "No"
+    ],
+    "answer": 0
+  },
+  {
+    "question": "An ________ is a real-time representation of class",
+    "options": [
+      "Class",
+      "Field",
+      "Data Type",
+      "Object"
+    ],
+    "answer": 3
+  },
+  {
+    "question": "________represent the best practices used by experienced object-oriented software developers.",
+    "options": [
+      "EB2",
+      "Design Patterns",
+      "IMS",
+      "JCL"
+    ],
+    "answer": 1
+  },
+  {
+    "question": "How many time can a Singleton class created?",
+    "options": [
+      "Only 1 Time",
+      "2 Times",
+      "3 Times",
+      "As Many as Possible"
+    ],
+    "answer": 0
+  }
+]
