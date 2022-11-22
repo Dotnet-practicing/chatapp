@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:timer/home.dart';
+import 'package:timer/home/home.dart';
 
 class VerificationScreen extends StatelessWidget {
   VerificationScreen({Key? key, required this.verificationId}) : super(key: key);

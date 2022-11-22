@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:timer/verifaction_screen.dart';
+import 'package:timer/auth/verifaction_screen.dart';
 
 class RequestScreen extends StatelessWidget {
   RequestScreen({Key? key}) : super(key: key);
