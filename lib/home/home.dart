@@ -1,10 +1,12 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:timer/auth/welcome_page.dart';
-import 'package:timer/profile/profile_setup_screen.dart';
+import 'package:timer/conversation_screen.dart';
+import 'package:timer/find_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -14,31 +16,28 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final users = [].obs;
 
-  void getAllUsers() async {
-    final db = FirebaseFirestore.instance;
-    final collection = db.collection('users');
-    final results = await collection.get();
-
-    final storage =  FirebaseStorage.instance;
-
-    print(results.size);
-
-    for (final document in results.docs) {
-      final user = {
-        'name': document.data()['name'],
-        'picture' : await storage.ref('users').child(document.id).getDownloadURL()
-      };
-
-      users.add(user);
-    }
-  }
+  final chats = [].obs;
 
   @override
   void initState() {
     super.initState();
-    getAllUsers();
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+
+    final db = FirebaseFirestore.instance;
+    final usersCol = db.collection('users');
+    usersCol.doc(uid).collection('chats').snapshots().listen((event) {
+      for (var element in event.docs) {
+        // final user = await usersCol.doc(element.id).get();
+        // final picture = await FirebaseStorage.instance.ref('users').child(element.id).getDownloadURL();
+        chats.add({
+          'id': element.id,
+          // 'name': user.data()['name'],
+          // 'picture': ,
+          'lastMessage': element.data()['lastMessage']
+        });
+      }
+    });
   }
 
   @override
@@ -46,26 +45,26 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('ChatApp')),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Get.to(FindScreen());
+        },
         child: Icon(Icons.add),
       ),
       body: Obx(() {
-        if (users.isEmpty) {
+        if (chats.isEmpty) {
           return Center(child: CircularProgressIndicator());
         } else {
           return ListView.builder(
-            itemCount: users.length,
+            itemCount: chats.length,
             itemBuilder: (ctx, index) {
-
-              final user = users[index];
-              final name = user['name'];
-              final picture = user['picture'];
+              final chat = chats[index];
+              final id = chat['id'];
+              final lastMessage = chat['lastMessage'];
 
               return ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: NetworkImage(picture),
-                ),
-                title: Text(name),
+                onTap: () => Get.to(ConversationScreen(user: chat)),
+                title: Text(id),
+                subtitle: Text(lastMessage),
               );
             },
           );
