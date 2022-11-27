@@ -16,8 +16,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   final chats = [].obs;
+  final loading = true.obs;
 
   @override
   void initState() {
@@ -26,17 +26,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final db = FirebaseFirestore.instance;
     final usersCol = db.collection('users');
-    usersCol.doc(uid).collection('chats').snapshots().listen((event) {
-      for (var element in event.docs) {
-        // final user = await usersCol.doc(element.id).get();
-        // final picture = await FirebaseStorage.instance.ref('users').child(element.id).getDownloadURL();
+
+    usersCol.doc(uid).collection('chats').snapshots().listen((event) async {
+      for (var change in event.docChanges) {
+        final user = await usersCol.doc(change.doc.id).get();
         chats.add({
-          'id': element.id,
-          // 'name': user.data()['name'],
-          // 'picture': ,
-          'lastMessage': element.data()['lastMessage']
+          'id': change.doc.id,
+          'name': user.data()?['name'] ?? 'Null',
+          'lastMessage': change.doc.data()?['lastMessage'] ?? ''
         });
       }
+      loading.value = false;
     });
   }
 
@@ -51,25 +51,35 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Icon(Icons.add),
       ),
       body: Obx(() {
-        if (chats.isEmpty) {
+        if (loading.isTrue) {
           return Center(child: CircularProgressIndicator());
         } else {
-          return ListView.builder(
-            itemCount: chats.length,
-            itemBuilder: (ctx, index) {
-              final chat = chats[index];
-              final id = chat['id'];
-              final lastMessage = chat['lastMessage'];
-
-              return ListTile(
-                onTap: () => Get.to(ConversationScreen(user: chat)),
-                title: Text(id),
-                subtitle: Text(lastMessage),
-              );
-            },
-          );
+          return _buildList();
         }
       }),
     );
+  }
+
+  _buildList() {
+    return Obx(() {
+      if (chats.isEmpty) {
+        return Center(child: Text('No Chats!'));
+      } else {
+        return ListView.builder(
+          itemCount: chats.length,
+          itemBuilder: (ctx, index) {
+            final chat = chats[index];
+            final id = chat['id'];
+            final lastMessage = chat['lastMessage'];
+
+            return ListTile(
+              onTap: () => Get.to(ConversationScreen(user: chat)),
+              title: Text(chat['name']),
+              subtitle: Text(lastMessage),
+            );
+          },
+        );
+      }
+    });
   }
 }

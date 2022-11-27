@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:timer/conversation_screen.dart';
 
 class FindScreen extends StatefulWidget {
   const FindScreen({Key? key}) : super(key: key);
@@ -22,11 +24,13 @@ class _FindScreenState extends State<FindScreen> {
     final storage = FirebaseStorage.instance;
 
     for (final document in results.docs) {
-      print(document.data());
+      if (document.id == FirebaseAuth.instance.currentUser!.uid) {
+        continue;
+      }
       final user = {
+        'id': document.id,
         'name': document.data()['name'],
-        'picture':
-        await storage.ref('users').child(document.id).getDownloadURL()
+        'picture': await storage.ref('users').child(document.id).getDownloadURL()
       };
 
       users.add(user);
@@ -55,6 +59,9 @@ class _FindScreenState extends State<FindScreen> {
               final picture = user['picture'];
 
               return ListTile(
+                onTap: () {
+                  Get.to(ConversationScreen(user: user));
+                },
                 leading: CircleAvatar(
                   backgroundImage: NetworkImage(picture),
                 ),

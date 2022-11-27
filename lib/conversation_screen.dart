@@ -19,55 +19,84 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   void sendMessage() async {
     final message = controller.text;
-    messages.add(message);
 
-    final sender = FirebaseAuth.instance.currentUser!.uid;
-    final receiver = widget.user['id'];
+    final senderUid = FirebaseAuth.instance.currentUser!.uid;
+    final receiverUid = widget.user['id'];
 
     final db = FirebaseFirestore.instance;
     final usersCol = db.collection('users');
-    await usersCol.doc(sender).collection('chats')
-    .doc(receiver).collection('messages').add({
-      'message': message
-    });
 
-    await usersCol.doc(receiver).collection('chats')
-        .doc(sender).collection('messages').add({
-      'message': message
-    });
+    // Sender chat
+    final senderChatsCol = usersCol.doc(senderUid).collection('chats');
+    final senderMessageDoc = senderChatsCol.doc(receiverUid);
+    await senderMessageDoc.set({'lastMessage': message});
+    await senderMessageDoc
+        .collection('messages')
+        .add({'message': message, 'sender': senderUid});
+    // Receiver chat
+    final receiverChatsCol = usersCol.doc(receiverUid).collection('chats');
+    final receiverMessageDoc = receiverChatsCol.doc(senderUid);
+    await receiverMessageDoc.set({'lastMessage': message});
+    await receiverMessageDoc
+        .collection('messages')
+        .add({'message': message, 'sender': senderUid});
   }
 
   @override
   void initState() {
     super.initState();
     final sender = FirebaseAuth.instance.currentUser!.uid;
-    final receiver = widget.user['id'];
+    final String receiver = widget.user['id'];
 
     final db = FirebaseFirestore.instance;
     final usersCol = db.collection('users');
-    usersCol.doc(sender).collection('chats').doc(receiver).collection('messages').snapshots().listen((event) {
-      for (final doc in event.docs) {
-        messages.add(doc.data()['message']);
-      }});
+
+    usersCol
+        .doc(sender)
+        .collection('chats')
+        .doc(receiver)
+        .collection('messages')
+        .snapshots()
+        .listen((event) {
+      for (final changes in event.docChanges) {
+        messages.insert(0, changes.doc.data());
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.user['id']),
-      ),
+          title: Row(
+        children: [Text(widget.user['name'])],
+      )),
       body: Column(
         children: [
           Expanded(
             child: Obx(() {
               return ListView.builder(
+                reverse: true,
                 itemCount: messages.length,
                 itemBuilder: (ctx, index) {
-
                   final message = messages[index];
-
-                  return ListTile(title: Text(message));
+                  return Column(
+                    crossAxisAlignment: message['sender'] == FirebaseAuth.instance.currentUser!.uid ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(8)),
+                        child: Text(
+                          message['message'],
+                          style: TextStyle(fontSize: 16, color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  );
                 },
               );
             }),
